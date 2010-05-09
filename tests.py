@@ -93,24 +93,6 @@ class TestSerekSerialization(unittest.TestCase):
     def test_mixed(self):
         self.assertEquals(serek.serialize({0:1,1:1,2:'a'}), serek.serialize((1,1,'a')))
 
-    def test_recount(self):
-        # this test might give false-negatives under rare circumstances, when there happen to exist
-        # extra references somwehere in the Python VM to object used in this test
-        
-        import sys
-
-        x = serek.deserialize('i:1234567;')
-        y = 1234568
-        self.assertEquals(sys.getrefcount(x), sys.getrefcount(y))
-
-        x = serek.deserialize('a:2:{i:11223344;s:3:"abc";i:22334455;s:4:"qwerty";}')
-        y = {33445566: "cba", 44556677: "ytreqw"}
-        self.assertEquals(sys.getrefcount(x), sys.getrefcount(y))
-        for fx, fy in zip(x.iterkeys(), y.iterkeys()):
-            self.assertEquals(ses.getrefcount(fx), sys.getrefcount(fy))
-        for fx, fy in zip(x.itervalues(), y.itervalues()):
-            self.assertEquals(ses.getrefcount(fx), sys.getrefcount(fy))
-
 
 if __name__ == '__main__':
     unittest.main()

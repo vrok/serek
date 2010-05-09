@@ -229,7 +229,6 @@ _deserialize(char **srlzd_ref, char *end)
                 return NULL;
             }
 
-            Py_INCREF(result);
             return result;
         }
         case 's': {
@@ -261,17 +260,9 @@ _deserialize(char **srlzd_ref, char *end)
             }
 
             PyObject *result = PyString_FromStringAndSize(str_start, str_len);
-            Py_INCREF(result);
             return result;
-            /*
-            char *own_copy = strndup(srlzd, str_len);
-            if (own_copy == NULL) {
-                // TODO: error handling
-            }
-            */
         }
         case '\0': {
-            Py_INCREF(Py_None);
             return Py_None;
         }
         case 'N': {
@@ -280,7 +271,6 @@ _deserialize(char **srlzd_ref, char *end)
                 return NULL;
             }
 
-            Py_INCREF(Py_None);
             return Py_None;
         }
         case 'b': {
@@ -311,10 +301,8 @@ _deserialize(char **srlzd_ref, char *end)
             }
 
             if (value) {
-                Py_INCREF(Py_True);
                 return Py_True;
             } else {
-                Py_INCREF(Py_False);
                 return Py_False;
             }
         }
@@ -353,7 +341,6 @@ _deserialize(char **srlzd_ref, char *end)
                 return NULL;*/
 
             PyObject *result = PyFloat_FromDouble(value);
-            Py_INCREF(result);
             return result;
 
         }
@@ -371,7 +358,6 @@ _deserialize(char **srlzd_ref, char *end)
             }
 
             PyObject *result = PyDict_New();
-            Py_INCREF(result);
 
             while (arr_len--)  {
                 PyObject *key = NULL;
@@ -384,11 +370,12 @@ _deserialize(char **srlzd_ref, char *end)
                 if (value == NULL)
                     return NULL;
 
+                Py_INCREF(key);
+                Py_INCREF(value);
                 PyDict_SetItem(result, key, value);
             }
 
             if (*srlzd++ != '}') {
-                Py_DECREF(result);
                 PyErr_SetString(PyExc_ValueError, "Parse error: expected \"}\".");
                 return NULL;
             }
@@ -418,7 +405,6 @@ serek_deserialize(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    //Py_DECREF(result);
     return result;
 }
 
