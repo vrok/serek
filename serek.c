@@ -418,24 +418,17 @@ serek_deserialize(PyObject *self, PyObject *args)
         return NULL;
     }
 
+    //Py_DECREF(result);
     return result;
 }
 
 static PyObject *
 serek_serialize(PyObject *self, PyObject *args)
 {
-    int sts;
-
-    //if (!PyArg_ParseTuple(args, "s", &command))
-    //    return NULL;
-
     PyObject *data = NULL;
 
-    //if (!PyArg_UnpackTuple(args, "data", 1, 1, &data))
     if (! PyArg_ParseTuple(args, "O", &data))
         return NULL;
-
-    //node *root_node = parse_regex(command);
 
     stringbuilder_s *sb = stringbuilder_new();
     if (sb == NULL) {
@@ -447,11 +440,11 @@ serek_serialize(PyObject *self, PyObject *args)
         return NULL;
 
     char *result = stringbuilder_build(sb);
+    if (result == NULL) {
+        return PyErr_NoMemory();
+    }
     stringbuilder_free(sb, 1);
 
-    sts = 0;
-
-    //sts = serialize(command);
     return Py_BuildValue("s", result);
 }
 

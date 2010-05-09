@@ -59,6 +59,9 @@ char*
 stringbuilder_build(const stringbuilder_s *self)
 {
     char *result = (char*)malloc(self->size + 1);
+    if (result == NULL) {
+        return NULL;
+    }
     char *cursor = result;
     stringbuilder_node_s *iterator = self->head;
     while (iterator != NULL) {
