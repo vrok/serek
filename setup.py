@@ -7,5 +7,5 @@ serek = Extension('serek',
 
 setup (name = 'serek',
        version = '0.1',
-       description = 'This is a demo package',
+       description = 'PHP serialization for Python',
        ext_modules = [serek])
