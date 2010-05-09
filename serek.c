@@ -37,13 +37,13 @@ _serialize(PyObject *self, stringbuilder_s *sb)
             PyErr_SetString(PyExc_MemoryError, "malloc() failed!");
             return 1;
         }
+
         int wrote = snprintf(own_copy, allocated_len, "s:%ld:\"%s\";", len, str_value);
         if (wrote < 0) {
             PyErr_SetString(PyExc_RuntimeError, "Internal error while doing snprintf().");
             return 1;
         }
-        //strncpy(own_copy, str_value, len);
-        //own_copy[len] = '\0';
+
         stringbuilder_push(sb, own_copy);
     } else
     if (self == Py_None) {
@@ -160,6 +160,33 @@ _serialize(PyObject *self, stringbuilder_s *sb)
         }
 
         stringbuilder_push(sb, strdup("}"));
+    } else
+    if (PyLong_Check(self)) {
+        // I think that Long objects don't occur as ofter as other types, thus they are at the end.
+
+        PyObject *as_string = _PyLong_Format(self, 10, 0, 0);
+        if (as_string == NULL) {
+            // Someone could check if something different may cause NULL result.
+            PyErr_SetString(PyExc_MemoryError, "Probably memory error happened.");
+            return 1;
+        }
+
+        char *str_value = PyString_AS_STRING(as_string);
+        long len = PyString_Size(as_string);
+        long allocated_len = sizeof("i:") + len + sizeof(";") + 1;
+        char *own_copy = (char*)malloc(allocated_len);
+        if (own_copy == NULL) {
+            PyErr_SetString(PyExc_MemoryError, "malloc() failed!");
+            return 1;
+        }
+
+        int wrote = snprintf(own_copy, allocated_len, "i:%s;", str_value);
+        if (wrote < 0) {
+            PyErr_SetString(PyExc_RuntimeError, "Internal error while doing snprintf().");
+            return 1;
+        }
+
+        stringbuilder_push(sb, own_copy);
     } else {
         PyErr_SetString(PyExc_NotImplementedError, "Serialization of this type is not supported yet.");
         return 1;

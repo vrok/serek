@@ -27,6 +27,8 @@ class TestSerekSerialization(unittest.TestCase):
         self._make_pair('i:123;', 123)
         self._make_pair('i:-123;', -123)
         self._make_pair('i:0;', 0)
+        self.assertEquals(type(1), type(serek.deserialize('i:4312;')))
+        self.assertTrue(isinstance(serek.deserialize('i:4312;'), int))
         self.assertRaises(ValueError, lambda: serek.deserialize('i:123;x')) # Garbage data at the end
         self.assertRaises(ValueError, lambda: serek.deserialize('ii:123;'))
         self.assertRaises(ValueError, lambda: serek.deserialize('i'))
@@ -34,6 +36,17 @@ class TestSerekSerialization(unittest.TestCase):
         self.assertRaises(ValueError, lambda: serek.deserialize('i:123'))
         self.assertRaises(ValueError, lambda: serek.deserialize('i:123{;'))
         self.assertRaises(ValueError, lambda: serek.deserialize('i123{;'))
+
+    def test_long(self):
+        self._make_pair('i:12399999999999999999999999;', 12399999999999999999999999)
+        self._make_pair('i:-12399999999999999999999999;', -12399999999999999999999999)
+        self.assertEquals(type(199999999999999999999999), type(serek.deserialize('i:431299999999999999999999999;')))
+        self.assertTrue(serek.deserialize('i:431299999999999999999999999;'), long)
+        self.assertRaises(ValueError, lambda: serek.deserialize('i:12399999999999999999999999;x')) # Garbage data at the end
+        self.assertRaises(ValueError, lambda: serek.deserialize('ii:12399999999999999999999999;'))
+        self.assertRaises(ValueError, lambda: serek.deserialize('i:12399999999999999999999999'))
+        self.assertRaises(ValueError, lambda: serek.deserialize('i:12399999999999999999999999{;'))
+        self.assertRaises(ValueError, lambda: serek.deserialize('i12399999999999999999999999{;'))
 
     def test_none(self):
         self._make_pair('N;', None)
