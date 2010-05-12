@@ -466,7 +466,7 @@ serek_serialize(PyObject *self, PyObject *args)
     }
 
     if (_serialize(data, sb))
-        // Returs 1 if failed somehow.
+        // Returns 1 if failed somehow.
         return NULL;
 
     char *result = stringbuilder_build(sb);
