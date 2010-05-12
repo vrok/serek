@@ -252,6 +252,7 @@ _deserialize(char **srlzd_ref, char *end)
             srlzd = num_end;
 
             if (*srlzd++ != ';') {
+                Py_DECREF(result);
                 PyErr_SetString(PyExc_ValueError, "Parse error: expected \";\".");
                 return NULL;
             }
@@ -290,6 +291,7 @@ _deserialize(char **srlzd_ref, char *end)
             return result;
         }
         case '\0': {
+            Py_INCREF(Py_None);
             return Py_None;
         }
         case 'N': {
@@ -298,6 +300,7 @@ _deserialize(char **srlzd_ref, char *end)
                 return NULL;
             }
 
+            Py_INCREF(Py_None);
             return Py_None;
         }
         case 'b': {
@@ -328,8 +331,10 @@ _deserialize(char **srlzd_ref, char *end)
             }
 
             if (value) {
+                Py_INCREF(Py_True);
                 return Py_True;
             } else {
+                Py_INCREF(Py_False);
                 return Py_False;
             }
         }
@@ -368,6 +373,11 @@ _deserialize(char **srlzd_ref, char *end)
                 return NULL;*/
 
             PyObject *result = PyFloat_FromDouble(value);
+            if (result == NULL) {
+                // Someone could check if something different may cause NULL result.
+                PyErr_SetString(PyExc_MemoryError, "Probably memory error happened.");
+                return NULL;
+            }
             return result;
 
         }
@@ -385,24 +395,31 @@ _deserialize(char **srlzd_ref, char *end)
             }
 
             PyObject *result = PyDict_New();
+            if (result == NULL) {
+                PyErr_SetString(PyExc_MemoryError, "Probably memory error happened.");
+                return NULL;
+            }
 
             while (arr_len--)  {
                 PyObject *key = NULL;
                 PyObject *value = NULL;
 
                 key = _deserialize(srlzd_ref, end);
-                if (key == NULL)
+                if (key == NULL) {
+                    Py_DECREF(result);
                     return NULL;
+                }
                 value = _deserialize(srlzd_ref, end);
-                if (value == NULL)
+                if (value == NULL) {
+                    Py_DECREF(result);
                     return NULL;
+                }
 
-                Py_INCREF(key);
-                Py_INCREF(value);
                 PyDict_SetItem(result, key, value);
             }
 
             if (*srlzd++ != '}') {
+                Py_DECREF(result);
                 PyErr_SetString(PyExc_ValueError, "Parse error: expected \"}\".");
                 return NULL;
             }
