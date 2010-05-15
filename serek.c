@@ -161,6 +161,15 @@ _serialize(PyObject *self, stringbuilder_s *sb)
 
         stringbuilder_push(sb, strdup("}"));
     } else
+    if (PyUnicode_Check(self)) {
+        PyObject *result = PyUnicode_AsEncodedString(self, "utf-8", "ignore");
+        if (result == NULL) {
+            // Error should be already set
+            return 1;
+        }
+
+        return _serialize(result, sb);
+    } else
     if (PyLong_Check(self)) {
         // I think that Long objects don't occur as ofter as other types, thus they are at the end.
 
