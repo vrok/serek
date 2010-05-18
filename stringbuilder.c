@@ -86,5 +86,7 @@ stringbuilder_free(stringbuilder_s *self, char free_vals)
             free(tmp->value);
         free(tmp);
     }
+
+    free(self);
 }
 

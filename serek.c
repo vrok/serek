@@ -254,6 +254,7 @@ _deserialize(char **srlzd_ref, char *end)
             PyObject *result = PyInt_FromString(num_copy, NULL, 0);
             if (result == NULL) {
                 PyErr_SetString(PyExc_ValueError, "Parse error: couldn't parse integer.");
+                free(num_copy);
                 return NULL;
             }
             free(num_copy);
@@ -420,11 +421,14 @@ _deserialize(char **srlzd_ref, char *end)
                 }
                 value = _deserialize(srlzd_ref, end);
                 if (value == NULL) {
+                    Py_DECREF(key);
                     Py_DECREF(result);
                     return NULL;
                 }
 
                 PyDict_SetItem(result, key, value);
+                Py_DECREF(key);
+                Py_DECREF(value);
             }
 
             if (*srlzd++ != '}') {
@@ -479,12 +483,14 @@ serek_serialize(PyObject *self, PyObject *args)
         return NULL;
 
     char *result = stringbuilder_build(sb);
+    stringbuilder_free(sb, 1);
     if (result == NULL) {
         return PyErr_NoMemory();
     }
-    stringbuilder_free(sb, 1);
 
-    return Py_BuildValue("s", result);
+    PyObject *serialized = Py_BuildValue("s", result);
+    free(result);
+    return serialized;
 }
 
 
