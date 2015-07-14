@@ -1,3 +1,6 @@
+What's this?
+------------
+
 A Python module which implements PHP serialization. It is written in C, thus it should be faster than other, pure-Python implementations.
 
 **Why would you ever want to use PHP serialization in Python?** (Intead of, say, JSON?) Well, if you have a system consisting of both Python and PHP parts, you may want to talk to the PHP parts in their own language. But, well, most likely you will use it when you have some old legacy PHP code, and want to build newer parts of the system in Python.
@@ -18,3 +21,10 @@ True
 ```
 
 Object serialization is not supported (yet). The legacy PHP system that the author had to deal with doesn't use such things (fortunately!). _BTW, an idea: Maybe substituting full-featured objects with nested dicts is doable and worth considering?_
+
+Installation
+------------
+```bash
+python setup.py build
+sudo python setup.py install
+```
